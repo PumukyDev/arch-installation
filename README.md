@@ -1,19 +1,19 @@
 ### Set the console keyboard layout
 
-The defaut console keymap is US, however if you need other keymap you can change it with the following command:
+First we will start by setting the proper console keymap, the defaut console keymap is US, however if you need other keymap you can change it with the following command:
 
 ```bash
 loadkeys <keymap>
 ```
-
-
-In order to see available layouts, just run: `localectl list-keymaps`
-
 e.g: 
 
 ```bash
 loadkeys es
 ```
+
+> [!NOTE]
+> In order to see available layouts, just run: `localectl list-keymaps`
+
 
 ### Verify the boot mode
 
@@ -26,7 +26,7 @@ If you make:
 cat /sys/firmware/efi/fw_platform_size
 ```
 
-Anf it returns `64`then the system us booted in UEFI mode and you can follow this tutorial, otherwhise if the command retuns `32`the system is booted in BIOS
+And it returns `64` then the system is booted in UEFI mode and you can follow this tutorial, otherwhise if the command retuns `32` the system is booted in BIOS
 
 ### Connect to the internet 
 
@@ -36,10 +36,27 @@ Ensure tour network interface is listed and enabled with `ip-link`:
 ip link
 ```
 
+1. lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT qlen 1000
+    link/looback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2. enp3s0f3u3c2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000
+    link/ether ab:cd:ef:gh:ij:kl brd ff:ff:ff:ff:ff:ff
+4. wlan0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN mode DORMANT group default qlen 1000
+    link/ether ab:cd:ef:gh:ij:kl brd ff:ff:ff:ff:ff:ff
+
+
 Connect to the network:
 
 * Ethernet—plug in the cable.
 * Wi-Fi—authenticate to the wireless network using iwctl.
+
+```bash
+iwlist wlan0 scan | more
+```
+
+```bash
+systemctl start --now iwd.service
+iwctl --passphrase 'Your_Router_Password' station wlan0 connect 'Your_Router_Name'
+```
 
 Verify the connection pinging google or archlinux.org
 
@@ -54,6 +71,20 @@ ping 8.8.8.8
 ping archlinux.org
 ```
 
+lsblk
+
+NAME      MAJ:MIN   RM  SIZE    RO  TYPE    MOUNTPOINT
+loop0       7:0     0   795.7M  1   loop    /run/archiso/airootfs
+sda         8:0     1   29GB    0   disk
+|-sda1      8:1     1   954M    0   part
+|-sda2      8:2     1   165M    0   part
+nvme0n1     259:0   0   1.8T    0   disk
+................................
+
+
+```bash
+cfdisk /dev/nvme0n1
+```
 
 
 | Select lable type |
@@ -97,9 +128,19 @@ Click on `New` and click enter, the rest of the disk will be the home space.
 Click on `Write` and type yes
 
 
+If you want to check the partitions, just run the following command:
+
+```bash
+fdisk -l /dev/nvme0n1
+```
+
 ### Format the partitions
 
 Once the partitions have been created, each newly created partition must be formatted with an appropriate file system. See File systems#Create a file system for details.
+
+```bash
+mkfs.fat -F 32 /dev/efi_system_partition
+```
 
 For example, to create an Ext4 file system on /dev/root_partition, run:
 
@@ -117,9 +158,7 @@ mkswap /dev/swap_partition
 
 It will be probably /dev/sda2 or /dev/nvme0n2d
 
-```bash
-mkfs.fat -F 32 /dev/efi_system_partition
-```
+
 
 ### Mount the file systems
 
@@ -144,6 +183,17 @@ If you created a swap volume, enable it with swapon:
 swapon /dev/swap_partition
 ```
 
+
+
+```bash
+mkdir -p /mnt/boot /mnt/home
+
+mount /dev/nvme0n1p1 /mnt/boot
+mount /dev/nvme0n1p2 /mnt
+mount /dev/nvme0n1p3 /mnt/home
+swapon /dev/nvme0n1p4
+```
+
 ## Installation
 
 Packages to be installed must be downloaded from mirror servers, which are defined in /etc/pacman.d/mirrorlist. On the live system, after connecting to the internet, reflector updates the mirror list by choosing 20 most recently synchronized HTTPS mirrors and sorting them by download rate.
@@ -157,7 +207,28 @@ Note: No software or configuration (except for /etc/pacman.d/mirrorlist) gets ca
 Use the pacstrap(8) script to install the base package, Linux kernel and firmware for common hardware: 
 
 ```bash
-pacstrap -K /mnt base linux linux-firmware
+pacstrap -K /mnt base linux linux-firmware nano grub networkmanager efibootmgr
+```
+
+I hardly recommend you to install amd-ucode or intel-ucode too, they are CPU microcode hardware bug and security fixes
+
+
+If you will use wifi later you need to install other 3 packages:
+
+```bash
+pacstrap -K /mnt netctl wpa_supplicant dialog
+```
+
+### Generate fstab
+
+```bash
+genfstab -U /mnt >> /mnt/etc/fstab
+```
+
+You can check it with:
+
+```bash
+cat /mnt/etc/fstab
 ```
 
 ### Chroot
@@ -174,6 +245,10 @@ Set the time zone
 
 ```bash
 ln -sf /usr/share/zoneinfo/Region/City /etc/localtime
+```
+
+```bash
+ln -sf /usr/share/zoneinfo/Europe/Madrid /etc/localtime
 ```
 
 Run hwclock(8) to generate /etc/adjtime:
