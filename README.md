@@ -146,6 +146,7 @@ For example, to create an Ext4 file system on /dev/root_partition, run:
 
 ```bash
 mkfs.ext4 /dev/root_partition
+mkfs.ext4 /dev/home_partition
 ```
 
 It will be probably /dev/sda3 or /dev/nvme0n3
@@ -222,7 +223,7 @@ pacstrap -K /mnt netctl wpa_supplicant dialog
 ### Generate fstab
 
 ```bash
-genfstab -U /mnt >> /mnt/etc/fstab
+genfstab -U /mnt > /mnt/etc/fstab
 ```
 
 You can check it with:
@@ -251,21 +252,25 @@ ln -sf /usr/share/zoneinfo/Region/City /etc/localtime
 ln -sf /usr/share/zoneinfo/Europe/Madrid /etc/localtime
 ```
 
+To see timeszones, just run
+
+timedatectl list-timazones | more
+
+
+
 Run hwclock(8) to generate /etc/adjtime:
 
 ```bash
-hwclock --systohc
+hwclock -w
 ```
 
 This command assumes the hardware clock is set to UTC. See System time#Time standard for details.
 
 To prevent clock drift and ensure accurate time, set up time synchronization using a Network Time Protocol (NTP) client such as systemd-timesyncd. 
 
+
 ### Localization
 
-```bash
-pacman -S nano
-```
 
 Edit `/etc/locale.gen` with nano and uncomment `en_US.UTF-8 UTF-8` and other needed UTF-8 locales (I will uncomment `es_ES.UTF-8 UTF-8`). Generate the locales by running:
 
@@ -276,9 +281,210 @@ locale-gen
 Create the locale.conf(5) file, and set the LANG variable accordingly: 
 
 ```bash
-nano /etc/locale.conf
+echo KEYMAP=es > /etc/vconsole.conf
+```
+
+
+This will be the language
+
+```bash
+echo LANG=es_ES.UTF-8 > /etc/locale.conf
 ```
 
 And add `LANG=en_US.UTF-8`
 
 If you set the console keyboard layout, make the changes persistent in vconsole.conf(5): 
+
+
+
+
+
+
+
+
+### Set pc name
+
+echo PC_name > /etc/hostname
+
+echo HP > /etc/hostname
+
+
+
+### Root password
+
+```bash
+passwd
+```
+
+And type your new password 2 times
+
+
+
+
+
+
+useradd -m adrian
+
+passwd adrian
+
+
+
+
+
+sudo mkdir -p /boot/efi
+sudo mount /dev/sdXn /boot/efi
+
+
+grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB
+
+grub-mkconfig -o /boot/grub/grub.cfg
+
+
+
+
+
+
+
+
+RESTART, QUIT PENDRIVE
+exit
+poweroff
+
+
+
+log as root
+
+ping 8.8.8.8
+
+Network us unreachable
+
+So we can to configure the connection wired/wifi
+
+Wired
+
+systemctl start NetworkManager
+systemctl enable NetworkManager
+
+
+ping 8.8.8.8
+
+
+```bash
+ip link
+```
+
+1. lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT qlen 1000
+    link/looback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2. wlo1: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN mode DORMANT group default qlen 1000
+    link/ether ab:cd:ef:gh:ij:kl brd ff:ff:ff:ff:ff:ff
+
+
+
+ ip link set wlo1 up
+
+ nmcli dev wifi connect 'Your_Router_Name' password 'Your_Router_Password'
+
+
+ping 8.8.8.8
+
+
+lspci | grep VGA
+03:00.0 VGA compatible controller: Advanced Micro Devices, Inc. [AMD/ATI] Barcelo (rev c4)
+
+
+Generic controllers
+
+pacman -S xf86-video-vesa  
+
+
+Then you can install a more specific controller, if you have a 
+amd -> xf86-video-ati
+nvidia -> xf86-video-nouveau
+intel -> xf86-video-intel intel-ucode
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+make sudo commands as your user:
+
+as root
+
+pacman -S sudo
+usermod -aG wheel user
+
+
+
+## Export nano as your default editor
+echo "export EDITOR=nano" >> ~/.bashrc
+source ~/.bashrc
+
+
+
+sudo visudo
+
+
+
+
+scroll down
+
+
+search
+# %wheel ALL=(ALL:ALL) ALL
+
+uncomment it and save
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+instalar paru
+
+su -l user
+sudo pacman -S base-devel git rust
+
+mkdir -p desktop/repos
+cd desktop/repos
+git clone https://aur.archlinux.org/paru.git
+cd paru
+makepkg -si
+
+tarda mucho!
+
+
+
+
+sudo pacman -S xorg-server xorg-xinit mesa mesa-demos
+
+sudo pacman -S lightdm
+
+sudo systemctl start lightdm
+sudo systemctl enable lightdm
