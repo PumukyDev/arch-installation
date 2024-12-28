@@ -1,12 +1,12 @@
 # ARCH LINUX INSTALLATION GUIDE
 
-Arch Linux has their an [official installation guide](https://wiki.archlinux.org/title/Installation_guide), however I made this tutorial to make a more personalized arch installation experience
+Arch Linux has its own [official installation guide](https://wiki.archlinux.org/title/Installation_guide), however I made this tutorial to create a more customized Arch installation experience.
 
 ## Getting started
 
 ### Why Arch Linux
 
-Arch Linux is a GNU/Linux distribution
+Arch Linux is a [GNU](https://wiki.archlinux.org/title/GNU)/Linux distribution known for its flexibility, and **rolling release model**. It provides users with the latest software and updates without the need for major system upgrades. Arch’s minimalist approach allows you to build a system tailored exactly to your needs, **avoiding unnecessary bloat**. The distribution offers **excellent documentation** through the [Arch Wiki](https://wiki.archlinux.org/title/Main_page), which is widely regarded as one of the best resources for Linux users. Arch also features the powerful [Pacman](https://wiki.archlinux.org/title/Pacman) package manager and access to the [Arch User Repository (AUR)](https://aur.archlinux.org/), giving you an extensive library of software. With bleeding-edge updates, a **highly customizable system**, and a strong focus on user control, Arch Linux is ideal for those who want a **lightweight**, **efficient**, Linux experience.
 
 
 
@@ -15,21 +15,26 @@ Arch Linux is a GNU/Linux distribution
 ## INSTALLATION
 
 Once 
-### Set the console keyboard layout
 
-First we will start by setting the proper console keymap, the defaut console keymap is US, however if you need other keymap you can change it with the following command:
+### Setting the Console Keyboard Layout
 
-```bash
-loadkeys <keymap>
-```
-e.g: 
+To begin, it’s important to configure the correct keyboard layout for the console. By default, the keyboard layout is set to **US**. If you require a different layout, you can change it using the following command:
+
+<dl><dd>
+<pre>
+<span style="color:#ff5a5a;">root</span>@archiso ~ # <b>loadkeys <i>keymap</i></b>
+</pre>
+</dd></dl>
+
+
+For example, to set the layout to Spanish:
 
 ```bash
 loadkeys es
 ```
 
 > [!NOTE]
-> In order to see available layouts, just run: `localectl list-keymaps`
+> To view the available keyboard layouts, run the command: `localectl list-keymaps`
 
 
 ### Verify the boot mode
