@@ -1,3 +1,20 @@
+# ARCH LINUX INSTALLATION GUIDE
+
+Arch Linux has their an [official installation guide](https://wiki.archlinux.org/title/Installation_guide), however I made this tutorial to make a more personalized arch installation experience
+
+## Getting started
+
+### Why Arch Linux
+
+Arch Linux is a GNU/Linux distribution
+
+
+
+## PREPARATION
+
+## INSTALLATION
+
+Once 
 ### Set the console keyboard layout
 
 First we will start by setting the proper console keymap, the defaut console keymap is US, however if you need other keymap you can change it with the following command:
@@ -195,6 +212,12 @@ mount /dev/nvme0n1p3 /mnt/home
 swapon /dev/nvme0n1p4
 ```
 
+no te preocupes si te da fallos al montar, a veces las carpetas no se crean correctamente, simplemente ejecuta
+
+mkdir -p /mnt/boot /mnt/home
+
+de nuevo
+
 ## Installation
 
 Packages to be installed must be downloaded from mirror servers, which are defined in /etc/pacman.d/mirrorlist. On the live system, after connecting to the internet, reflector updates the mirror list by choosing 20 most recently synchronized HTTPS mirrors and sorting them by download rate.
@@ -275,8 +298,21 @@ To prevent clock drift and ensure accurate time, set up time synchronization usi
 Edit `/etc/locale.gen` with nano and uncomment `en_US.UTF-8 UTF-8` and other needed UTF-8 locales (I will uncomment `es_ES.UTF-8 UTF-8`). Generate the locales by running:
 
 ```bash
+nano /etc/locale.gen
+```
+
+
+You can find them easily with ctrl + w
+
+```bash
 locale-gen
 ```
+
+You will see:
+Generation locales...
+    en_US.UTF-8 ... done
+    xx_XX.UTF-8 ... done
+Generation complete.
 
 Create the locale.conf(5) file, and set the LANG variable accordingly: 
 
@@ -331,11 +367,17 @@ passwd adrian
 
 
 
-sudo mkdir -p /boot/efi
-sudo mount /dev/sdXn /boot/efi
+mkdir -p /boot/efi
+mount /dev/sdXn /boot/efi
 
+you ewill see
+mount: (hint) your fstab has been modified, but systemd still uses
+       the old version; use 'systemctl daemon-reload' to reload.
 
 grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB
+
+
+if the installation finishes witout problems:
 
 grub-mkconfig -o /boot/grub/grub.cfg
 
@@ -482,9 +524,35 @@ tarda mucho!
 
 
 
-sudo pacman -S xorg-server xorg-xinit mesa mesa-demos
+sudo pacman -S xterm xorg-server xorg-xinit mesa mesa-demos
 
-sudo pacman -S lightdm
+sudo pacman -S lightdm lightdm-gtk-greeter
 
-sudo systemctl start lightdm
+
 sudo systemctl enable lightdm
+
+sudo pacman -S qtile
+
+
+
+
+sudo pacman -S alacritty feh xclip fastfetch openssh picom code stow wireless_tools python-psutils python-iwlib rofi kitty fish bat dunst arandr pulseaudio pamixer pulseaudio-alsa pulseaudio-jack alsa-utils pamixer 
+
+paru -S python-pulsectl-asyncio
+paru -S qtile-extras
+
+
+systemctl --user enable pulseaudio
+
+lo de arriba es muy importante que sea sin sudo!
+
+ firefox
+
+
+
+if it does not work make sure that everything inside your userfolder is yours, if not:
+
+sudo chown -R user:user /home/user
+
+
+copy the fonts
