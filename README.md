@@ -348,7 +348,7 @@ root@archiso ~ # <b>mkfs.fat -F 32 <i>/dev/efi_system_partition</i></b>
 </dd></dl>
 
 <details>
-    <summary style="font-size: 11px"><b>Examples</b></summary><br/>
+    <summary style="font-size: 8px"><b>Examples</b></summary><br/>
 
 <dl><dd>
 <pre>
@@ -375,7 +375,7 @@ root@archiso ~ # <b>mkswap <i>/dev/swap_partition</i></b>
 </dd></dl>
 
 <details>
-    <summary style="font-size: 11px"><b>Examples</b></summary><br/>
+    <summary style="font-size: 8px"><b>Examples</b></summary><br/>
 
 <dl><dd>
 <pre>
@@ -402,7 +402,7 @@ root@archiso ~ # <b>mkfs.ext4 <i>/dev/root_partition</i></b>
 </dd></dl>
 
 <details>
-    <summary style="font-size: 11px"><b>Examples</b></summary><br/>
+    <summary style="font-size: 8px"><b>Examples</b></summary><br/>
 
 <dl><dd>
 <pre>
@@ -429,7 +429,7 @@ root@archiso ~ # <b>mkfs.ext4 <i>/dev/home_partition</i></b>
 </dd></dl>
 
 <details>
-    <summary style="font-size: 11px"><b>Examples</b></summary><br/>
+    <summary style="font-size: 8px"><b>Examples</b></summary><br/>
 
 <dl><dd>
 <pre>
@@ -460,7 +460,7 @@ root@archiso ~ # <b>mount --mkdir <i>/dev/efi_system_partition</i> /mnt/boot/efi
 </dd></dl>
 
 <details>
-    <summary style="font-size: 11px"><b>Examples</b></summary><br/>
+    <summary style="font-size: 8px"><b>Examples</b></summary><br/>
 
 <dl><dd>
 <pre>
@@ -487,7 +487,7 @@ root@archiso ~ # <b>swapon <i>/dev/swap_partition</i></b>
 </dd></dl>
 
 <details>
-    <summary style="font-size: 11px"><b>Examples</b></summary><br/>
+    <summary style="font-size: 8px"><b>Examples</b></summary><br/>
 
 <dl><dd>
 <pre>
@@ -514,7 +514,7 @@ root@archiso ~ # <b>mount <i>/dev/root_partition</i> /mnt</b>
 </dd></dl>
 
 <details>
-    <summary style="font-size: 11px"><b>Examples</b></summary><br/>
+    <summary style="font-size: 8px"><b>Examples</b></summary><br/>
 
 <dl><dd>
 <pre>
@@ -541,7 +541,7 @@ root@archiso ~ # <b>mount --mkdir <i>/dev/home_partition</i> /mnt/home</b>
 </dd></dl>
 
 <details>
-    <summary style="font-size: 11px"><b>Examples</b></summary><br/>
+    <summary style="font-size: 8px"><b>Examples</b></summary><br/>
 
 <dl><dd>
 <pre>
