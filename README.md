@@ -10,400 +10,857 @@ Arch Linux is a [GNU](https://wiki.archlinux.org/title/GNU)/Linux distribution k
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+$${\color{#ff5a5a}root}$$
+$${\color{red}Red}$$
+$${\color{red}Red}$$
+$${\color{green}Green}$$
+$${\color{green}Green}$$
+$${\color{lightgreen}Light \space Green}$$ 	
+$${\color{lightgreen}Light \space Green}$$
+$${\color{blue}Blue}$$ 	
+$${\color{blue}Blue}$$
+$${\color{lightblue}Light \space Blue}$$ 	
+$${\color{lightblue}Light \space Blue}$$
+$${\color{black}Black}$$
+$${\color{black}Black}$$
+$${\color{white}White}$$
+$${\color{white}White}$$
+$${\color{red}Welcome \space \color{lightblue}To \space \color{orange}Stackoverflow}$$
+$${\color{red}Welcome \space \color{lightblue}To \space \color{orange}Stackoverflow}$$
+
+> [!NOTE]
+> Highlights information that users should take into account, even when skimming.
+
+> [!TIP]
+> Optional information to help a user be more successful.
+
+> [!IMPORTANT]
+> Crucial information necessary for users to succeed.
+
+> [!WARNING]
+> Critical content demanding immediate user attention due to potential risks.
+
+> [!CAUTION]
+> Negative potential consequences of an action.
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## PREPARATION
 
 ## INSTALLATION
 
 Once 
 
-### Setting the Console Keyboard Layout
+### Set the keyboard layout
 
-To begin, it’s important to configure the correct keyboard layout for the console. By default, the keyboard layout is set to **US**. If you require a different layout, you can change it using the following command:
+By default, the keyboard layout is set to **US**. You can see available layouts with:
 
 <dl><dd>
 <pre>
-<span style="color:#ff5a5a;">root</span>@archiso ~ # <b>loadkeys <i>keymap</i></b>
+root@archiso ~ # <b>localectl list-keymaps</b>
+</pre>
+</dd></dl>
+
+If you require a different layout, you can change it using the following command:
+
+<dl><dd>
+<pre>
+root@archiso ~ # <b>loadkeys <i>keymap</i></b>
+</pre>
+</dd></dl>
+
+For example, to set the layout to Spanish:
+
+<dl><dd>
+<pre>
+root@archiso ~ # <b>loadkeys es</b>
 </pre>
 </dd></dl>
 
 
-For example, to set the layout to Spanish:
 
-```bash
-loadkeys es
-```
-
-> [!NOTE]
-> To view the available keyboard layouts, run the command: `localectl list-keymaps`
 
 
 ### Verify the boot mode
 
-Before starting, check the content of `/sys/firmware/efi/fw_platform_size`
+Make sure you are running in UEFI mode with the following command:
+
+<dl><dd>
+<pre>
+root@archiso ~ # <b>cat /sys/firmware/efi/fw_platform_size</b>
+</pre>
+</dd></dl>
+
+If it returns `64`, the system is booted in UEFI mode, and you can proceed with the tutorial. Otherwise, if the command returns `32`, the system is booted in BIOS (Legacy) mode.
 
 
-If you make:
 
-```bash
-cat /sys/firmware/efi/fw_platform_size
-```
 
-And it returns `64` then the system is booted in UEFI mode and you can follow this tutorial, otherwhise if the command retuns `32` the system is booted in BIOS
 
 ### Connect to the internet 
 
-Ensure tour network interface is listed and enabled with `ip-link`:
+To install Arch Linux, you will need an internet connection. Let's begin by checking the available network interfaces:
 
-```bash
-ip link
+<dl><dd>
+<pre>
+root@archiso ~ # <b>ip link</b>
+</pre>
+</dd></dl>
+
+You should see something like this:
+
 ```
-
-1. lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT qlen 1000
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT qlen 1000
     link/looback 00:00:00:00:00:00 brd 00:00:00:00:00:00
-2. enp3s0f3u3c2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000
+2: enp3s0f3u3c2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000
     link/ether ab:cd:ef:gh:ij:kl brd ff:ff:ff:ff:ff:ff
-4. wlan0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN mode DORMANT group default qlen 1000
+4: wlan0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN mode DORMANT group default qlen 1000
     link/ether ab:cd:ef:gh:ij:kl brd ff:ff:ff:ff:ff:ff
+```
+The first interface is the **loopback interface**, which is essential and should always be present. After that, you may have **more or fewer interfaces depending on your computer hardware**.
+
+If you have an interface named **enpX or ethX**, it is an **Ethernet** interface. If you have one named **wlanX or wloX**, it is a **Wi-Fi** network card.
+
+In order to establish a connection, you need to configure one of the following options. **Choose one based on your needs**.
 
 
-Connect to the network:
+<details>
+    <summary><b>Wired Connection - ethX or enpX</b></summary><br/>
 
-* Ethernet—plug in the cable.
-* Wi-Fi—authenticate to the wireless network using iwctl.
+To establish a connection with a physical network interface, simply connect the Ethernet cable to the Ethernet port, no additional configuration is needed.
 
-```bash
-iwlist wlan0 scan | more
+</details>
+
+<details>
+    <summary><b>Wireless Connection - wlan0 or wlo0</b></summary><br/>
+
+To establish a connection with a Wi-Fi card, you need to **start the [iwd (iNet Wireless Daemon)](https://wiki.archlinux.org/title/Iwd) service**:
+
+<dl><dd>
+<pre>
+root@archiso ~ # <b>systemctl start --now iwd.service</b>
+</pre>
+</dd></dl>
+
+Then, you can connect to your **router** with the following command:
+
+<dl><dd>
+<pre>
+root@archiso ~ # <b>iwctl --passphrase <i>'Your_Router_Password'</i> station wlan0 connect <i>'Your_Router_Name'</i></b>
+</pre>
+</dd></dl>
+
+> [!TIP]
+> If you don't know your router name (weird), run the following command:
+><dl><dd>
+><pre>
+>root@archiso ~ # <b>iwlist wlan0 scan | more</b>
+></pre>
+></dd></dl>
+
+</details>
+
+
+Verify the connection by pinging Google or archlinux.org. One of them is enough.
+
+<dl><dd>
+<pre>
+root@archiso ~ # <b>ping google.com</b>
+root@archiso ~ # <b>ping 8.8.8.8</b>
+root@archiso ~ # <b>ping archlinux.org</b>
+</pre>
+</dd></dl>
+
+
+
+
+
+### Partition the disks
+
+Disks are assigned to a **block device** such as `/dev/sdX`, `/dev/nvmeXnY`. To identify these devices use the following command:
+
+<dl><dd>
+<pre>
+root@archiso ~ # <b>lsblk</b>
+</pre>
+</dd></dl>
+
+You will see an output similar to this:
+
+```
+NAME     MAJ:MIN  RM    SIZE  RO  TYPE  MOUNTPOINT
+loop0      7:0     0  795.7M   1  loop  /run/archiso/airootfs
+sda        8:0     1    29GB   0  disk
+|-sda1     8:1     1    954M   0  part
+|-sda2     8:2     1    165M   0  part
+nvme0n1  259:0     0    1.8T   0  disk
 ```
 
-```bash
-systemctl start --now iwd.service
-iwctl --passphrase 'Your_Router_Password' station wlan0 connect 'Your_Router_Name'
-```
+In the example you can see `sda`, which is the flash device. The other device is a 2TB NVMe where I will install Arch Linux, that's why it's called `nvme0n1`. If you have more devices thay can be called sdb, sdc, etc or nvme1n1, nvme2n1, and so on. 
 
-Verify the connection pinging google or archlinux.org
+Results ending in rom, loop or airootfs may be ignored. mmcblk* devices ending in rpbm, boot0 and boot1 can be ignored. 
 
-```bash
-ping google.com
-```
-```bash
-ping 8.8.8.8
-```
+> [!NOTE]
+> Here is a short explanation of each column:
+> NAME: Name of the block device (e.g., sda, nvme0n1, loop0).
+> MAJ:MIN: Major and minor device numbers identifying the device.
+> RM: Removable (1 for removable, 0 for fixed).
+> SIZE: Size of the device or partition.
+> RO: Read-only status (1 for read-only, 0 for read/write).
+> TYPE: Type of device (disk, part, or loop).
+> MOUNTPOINT: Where the device is mounted, if applicable.
 
-```bash
-ping archlinux.org
-```
+Now that we know the name of the disk where we want to install Arch Linux, we can partition it:
 
-lsblk
+<dl><dd>
+<pre>
+root@archiso ~ # <b>cfdisk <i>/dev/disk_to_partition</i></b>
+</pre>
+</dd></dl>
 
-NAME      MAJ:MIN   RM  SIZE    RO  TYPE    MOUNTPOINT
-loop0       7:0     0   795.7M  1   loop    /run/archiso/airootfs
-sda         8:0     1   29GB    0   disk
-|-sda1      8:1     1   954M    0   part
-|-sda2      8:2     1   165M    0   part
-nvme0n1     259:0   0   1.8T    0   disk
-................................
+Here is an example if your disk is called `sdb`:
+<dl><dd>
+<pre>
+root@archiso ~ # <b>cfdisk <i>/dev/sdb</i></b>
+</pre>
+</dd></dl>
 
+Or if you have an `nvme` as me:
 
-```bash
-cfdisk /dev/nvme0n1
-```
+<dl><dd>
+<pre>
+root@archiso ~ # <b>cfdisk <i>/dev/nvme0n1</i></b>
+</pre>
+</dd></dl>
 
+A semigraphical tool will appear.
+
+It will ask you to select a partition type. Press <kbd>Return</kbd> on `gpt`
 
 | Select lable type |
----------------------
+|-------------------|
 | gpt               |
 | dos               |
 | sgi               |
 | sun               |
 
+You now have 5 options:
+* `New`: to create partitions
+* `Quit`: to quit cfdisk without saving changes
+* `Help`: to display help
+* `Write`: to write the partition table to disk
+* `Dump`: to dump the partition table to a sfdisk-compatible script file
 
-Select you partition type, in my case GPT
+You are free to make the partitions as you wish. The official wiki provides a table like this:
 
-You have now 5 options `New`(to create partitions) `Quit` (to quit cfdisk without writing changes) `Help` (to print some help) `Write` (to write partition table to disk) and `Dump` (? Dice "Dump partition table to sfdisk compatible script file")
-
-We will start creating /boot
-
-The official wiki has a tebla like this
-
-| Mount point on the installed system | Partition | Partition type | Suggested size |
-|----|----|----|--------
-| /boot | /dev/efi_system_partition | Efi system partition | 1GiB |
-| [SWAP] | /dev/swap_partition | Linux swap | At least 4 GiB
-| / | /dev/root_partition | Linux x86-64 root (/) | Remainder of the device. At least 23-32 GiB|
-
-https://www.gbmb.org/gib-to-gb
-
-Click on `New` a type `1.073GB` (1GB)
-
-Select it and click on `Type`, select EFI System.
-
-Click on `New` a type `4.29GB` (4GB)
-
-Select it and click on `Type`, select Linux swap
-
-Click on `New` a type `34.36GB` (32GB)
-
-Select it and click on `Type`, select Linux root (x86-64)
-
-Click on `New` and click enter, the rest of the disk will be the home space. 
-
-Click on `Write` and type yes
+| Mount point on the installed system |         Partition         |    Partition type     | Suggested size |
+|-------------------------------------|---------------------------|-----------------------|----------------|
+|               /boot                 | /dev/efi_system_partition | Efi system partition  |      1GiB      |
+|               [SWAP]                |    /dev/swap_partition    |      Linux swap       | At least 4 GiB |
+|                 /                   | /dev/root_partition       | Linux x86-64 root (/) | Remainder of the device. At least 23-32 GiB|
 
 
-If you want to check the partitions, just run the following command:
+Apart from the partitions in the table above, I'm going to make a home partition for my user
 
-```bash
-fdisk -l /dev/nvme0n1
-```
+[!TIP]
+To navigate between partitions and options, use the arrow keys: <kbd>&#8592;</kbd> <kbd>&#8593;</kbd> <kbd>&#8595;</kbd> <kbd>&#8594;</kbd>
+
+#### 1. /boot
+
+Press <kbd>Return</kbd> on `New` and type `1GB`, then press <kbd>Return</kbd> again.
+
+Navigate to the newly created partition, press <kbd>Return</kbd> on `Type`, and select `EFI System`.
+
+#### 2. [swap]
+
+Press <kbd>Return</kbd> on `New` and type double the amount of your RAM in GB. For example, if you have 6GB of RAM, type `12GB`, then press <kbd>Return</kbd> again.
+
+Navigate to the newly created partition, press <kbd>Return</kbd> on `Type`, and select `Linux swap`.
+
+#### 3. /
+
+Press <kbd>Return</kbd> on `New` and enter the amount of GB you want for your root partition, for example, `250GB`, then press <kbd>Return</kbd> again.
+
+Navigate to the newly created partition, press <kbd>Return</kbd> on `Type`, and select `Linux root (x86-64)`.
+
+#### 4. /home
+
+Press <kbd>Return</kbd> on `New`, and to use the entire disk, press <kbd>Return</kbd> again.
+
+Navigate to the newly created partition, press <kbd>Return</kbd> on `Type`, and select `Linux home`.
+
+#### 5. Write changes
+
+Press <kbd>Return</kbd> on `Write` and type `yes`
+
+#### 6. Check partitions
+
+To check the partitions, simply run the following command:
+
+<dl><dd>
+<pre>
+root@archiso ~ # <b>fdisk -l <i>/dev/partitioned_disk</i></b>
+</pre>
+</dd></dl>
+
+
+
+
 
 ### Format the partitions
 
-Once the partitions have been created, each newly created partition must be formatted with an appropriate file system. See File systems#Create a file system for details.
+Once the partitions have been created, each newly created partition must be formatted with an appropriate file system. 
 
-```bash
-mkfs.fat -F 32 /dev/efi_system_partition
-```
+#### 1. /boot
 
-For example, to create an Ext4 file system on /dev/root_partition, run:
+<dl><dd>
+<pre>
+root@archiso ~ # <b>mkfs.fat -F 32 <i>/dev/efi_system_partition</i></b>
+</pre>
+</dd></dl>
 
-```bash
-mkfs.ext4 /dev/root_partition
-mkfs.ext4 /dev/home_partition
-```
+<details>
+    <summary style="font-size: 11px"><b>Examples</b></summary><br/>
 
-It will be probably /dev/sda3 or /dev/nvme0n3
+<dl><dd>
+<pre>
+root@archiso ~ # <b>mkfs.fat -F 32 <i>/dev/sdb1</i></b>
+</pre>
+</dd></dl>
 
-If you created a partition for swap, initialize it with mkswap(8): 
+<dl><dd>
+<pre>
+root@archiso ~ # <b>mkfs.fat -F 32 <i>/dev/nvme0n1p1</i></b>
+</pre>
+</dd></dl>
 
-```bash
-mkswap /dev/swap_partition
-```
+</details>
 
-It will be probably /dev/sda2 or /dev/nvme0n2d
+
+
+#### [swap]
+
+<dl><dd>
+<pre>
+root@archiso ~ # <b>mkswap <i>/dev/swap_partition</i></b>
+</pre>
+</dd></dl>
+
+<details>
+    <summary style="font-size: 11px"><b>Examples</b></summary><br/>
+
+<dl><dd>
+<pre>
+root@archiso ~ # <b>mkswap <i>/dev/sdb2</i></b>
+</pre>
+</dd></dl>
+
+<dl><dd>
+<pre>
+root@archiso ~ # <b>mkswap <i>/dev/nvme0n1p2</i></b>
+</pre>
+</dd></dl>
+
+</details>
+
+
+
+#### /
+
+<dl><dd>
+<pre>
+root@archiso ~ # <b>mkfs.ext4 <i>/dev/root_partition</i></b>
+</pre>
+</dd></dl>
+
+<details>
+    <summary style="font-size: 11px"><b>Examples</b></summary><br/>
+
+<dl><dd>
+<pre>
+root@archiso ~ # <b>mkfs.ext4 <i>/dev/sdb3</i></b>
+</pre>
+</dd></dl>
+
+<dl><dd>
+<pre>
+root@archiso ~ # <b>mkfs.ext4 <i>/dev/nvme0n1p3</i></b>
+</pre>
+</dd></dl>
+
+</details>
+
+
+
+#### /home
+
+<dl><dd>
+<pre>
+root@archiso ~ # <b>mkfs.ext4 <i>/dev/home_partition</i></b>
+</pre>
+</dd></dl>
+
+<details>
+    <summary style="font-size: 11px"><b>Examples</b></summary><br/>
+
+<dl><dd>
+<pre>
+root@archiso ~ # <b>mkfs.ext4 <i>/dev/sdb4</i></b>
+</pre>
+</dd></dl>
+
+<dl><dd>
+<pre>
+root@archiso ~ # <b>mkfs.ext4 <i>/dev/nvme0n1p4</i></b>
+</pre>
+</dd></dl>
+
+</details>
+
+
 
 
 
 ### Mount the file systems
 
+#### 1. /boot
+
+<dl><dd>
+<pre>
+root@archiso ~ # <b>mount --mkdir <i>/dev/efi_system_partition</i> /mnt/boot/efi</b>
+</pre>
+</dd></dl>
+
+<details>
+    <summary style="font-size: 11px"><b>Examples</b></summary><br/>
+
+<dl><dd>
+<pre>
+root@archiso ~ # <b>mount --mkdir <i>/dev/sdb1</i> /mnt/boot/efi</b>
+</pre>
+</dd></dl>
+
+<dl><dd>
+<pre>
+root@archiso ~ # <b>mount --mkdir <i>/dev/nvme0n1p1</i> /mnt/boot/efi</b>
+</pre>
+</dd></dl>
+
+</details>
 
 
-Mount the root volume to /mnt. For example, if the root volume is /dev/root_partition:
 
-# mount /dev/root_partition /mnt
+#### [swap]
 
-Create any remaining mount points under /mnt (such as /mnt/boot for /boot) and mount the volumes in their corresponding hierarchical order.
-Tip: Run mount(8) with the --mkdir option to create the specified mount point. Alternatively, create it using mkdir(1) beforehand.
+<dl><dd>
+<pre>
+root@archiso ~ # <b>swapon <i>/dev/swap_partition</i></b>
+</pre>
+</dd></dl>
 
-For UEFI systems, mount the EFI system partition:
+<details>
+    <summary style="font-size: 11px"><b>Examples</b></summary><br/>
 
-```bash
-mount --mkdir /dev/efi_system_partition /mnt/boot
-```
+<dl><dd>
+<pre>
+root@archiso ~ # <b>swapon <i>/dev/sdb2</i></b>
+</pre>
+</dd></dl>
 
-If you created a swap volume, enable it with swapon:
+<dl><dd>
+<pre>
+root@archiso ~ # <b>swapon <i>/dev/nvme0n1p2</i></b>
+</pre>
+</dd></dl>
 
-```bash
-swapon /dev/swap_partition
-```
+</details>
 
 
 
-```bash
-mkdir -p /mnt/boot /mnt/home
+#### /
 
-mount /dev/nvme0n1p1 /mnt/boot
-mount /dev/nvme0n1p2 /mnt
-mount /dev/nvme0n1p3 /mnt/home
-swapon /dev/nvme0n1p4
-```
+<dl><dd>
+<pre>
+root@archiso ~ # <b>mount <i>/dev/root_partition</i> /mnt</b>
+</pre>
+</dd></dl>
 
-no te preocupes si te da fallos al montar, a veces las carpetas no se crean correctamente, simplemente ejecuta
+<details>
+    <summary style="font-size: 11px"><b>Examples</b></summary><br/>
 
-mkdir -p /mnt/boot /mnt/home
+<dl><dd>
+<pre>
+root@archiso ~ # <b>mount <i>/dev/sdb3</i> /mnt</b>
+</pre>
+</dd></dl>
 
-de nuevo
+<dl><dd>
+<pre>
+root@archiso ~ # <b>mount <i>/dev/nvme0n1p3</i> /mnt</b>
+</pre>
+</dd></dl>
+
+</details>
+
+
+
+#### /home
+
+<dl><dd>
+<pre>
+root@archiso ~ # <b>mount --mkdir <i>/dev/home_partition</i> /mnt/home</b>
+</pre>
+</dd></dl>
+
+<details>
+    <summary style="font-size: 11px"><b>Examples</b></summary><br/>
+
+<dl><dd>
+<pre>
+root@archiso ~ # <b>mount --mkdir <i>/dev/sdb4</i> /mnt/home</b>
+</pre>
+</dd></dl>
+
+<dl><dd>
+<pre>
+root@archiso ~ # <b>mount --mkdir <i>/dev/nvme0n1p4</i> /mnt/home</b>
+</pre>
+</dd></dl>
+
+</details>
+
+
+
+
 
 ## Installation
 
-Packages to be installed must be downloaded from mirror servers, which are defined in /etc/pacman.d/mirrorlist. On the live system, after connecting to the internet, reflector updates the mirror list by choosing 20 most recently synchronized HTTPS mirrors and sorting them by download rate.
+Packages are downloaded from mirrors listed in `/etc/pacman.d/mirrorlist`. After connecting to the internet, the reflector tool updates the list by selecting the 20 most recent HTTPS mirrors and sorting them by download speed.
 
-The higher a mirror is placed in the list, the more priority it is given when downloading a package. You may want to inspect the file to see if it is satisfactory. If it is not, edit the file accordingly, and move the geographically closest mirrors to the top of the list, although other criteria should be taken into account.
-
-This file will later be copied to the new system by pacstrap, so it is worth getting right.
 ### Install essential packages
-Note: No software or configuration (except for /etc/pacman.d/mirrorlist) gets carried over from the live environment to the installed system.
 
-Use the pacstrap(8) script to install the base package, Linux kernel and firmware for common hardware: 
+Use the `pacstrap` script to install the base package
 
-```bash
-pacstrap -K /mnt base linux linux-firmware nano grub networkmanager efibootmgr
-```
+<dl><dd>
+<pre>
+root@archiso ~ # <b>pacstrap -K /mnt base linux linux-firmware nano grub networkmanager efibootmgr</b>
+</pre>
+</dd></dl>
 
-I hardly recommend you to install amd-ucode or intel-ucode too, they are CPU microcode hardware bug and security fixes
+If you plan to use Wi-Fi later, you will need to install three additional packages:
+
+<dl><dd>
+<pre>
+root@archiso ~ # <b>pacstrap -K /mnt netctl wpa_supplicant dialog</b>
+</pre>
+</dd></dl>
+
+> [!IMPORTANT]
+> I strongly recommend installing `amd-ucode` or `intel-ucode` as well. These packages provide CPU microcode updates for hardware bugs and security fixes. Just add `amd-ucode` or `intel-ucode` to the `pacstrap` installation.
 
 
-If you will use wifi later you need to install other 3 packages:
 
-```bash
-pacstrap -K /mnt netctl wpa_supplicant dialog
-```
+
 
 ### Generate fstab
 
-```bash
-genfstab -U /mnt > /mnt/etc/fstab
-```
+We have to generate `fstab`, which is used to define how disk partitions are mounted during **system startup**. The genfstab tool automatically detects the partitions mounted on /mnt and writes them to /mnt/etc/fstab, allowing the system to mount them correctly on **boot**.
 
-You can check it with:
+<dl><dd>
+<pre>
+root@archiso ~ # <b>genfstab -U /mnt > /mnt/etc/fstab</b>
+</pre>
+</dd></dl>
 
-```bash
-cat /mnt/etc/fstab
-```
+
+
+
 
 ### Chroot
 
 Change root into the new system:
 
-```bash
-arch-chroot /mnt
-```
+<dl><dd>
+<pre>
+root@archiso ~ # <b>arch-chroot /mnt</b>
+</pre>
+</dd></dl>
+
+
+
+
 
 ### Time
 
-Set the time zone
+To set the time zone, you first need to list the available time zones. Run the following command to see the available options:
 
-```bash
-ln -sf /usr/share/zoneinfo/Region/City /etc/localtime
+<dl><dd>
+<pre>
+[root@archiso /]# <b>timedatectl list-timezones | more</b>
+</pre>
+</dd></dl>
+
+Then, create a symbolic link to the correct time zone for your region and city:
+
+<dl><dd>
+<pre>
+[root@archiso /]# <b>ln -sf /usr/share/zoneinfo/<i>Region</i>/<i>City</i> /etc/localtime</b>
+</pre>
+</dd></dl>
+
+For example, to set the time zone to Europe/Madrid:
+
+<dl><dd>
+<pre>
+[root@archiso /]# <b>ln -sf /usr/share/zoneinfo/Europe/Madrid /etc/localtime</b>
+</pre>
+</dd></dl>
+
+
+Run the following command to generate the `/etc/adjtime` file, which is used to store hardware clock settings:
+
+<dl><dd>
+<pre>
+[root@archiso /]# <b>hwclock -w</b>
+</pre>
+</dd></dl>
+
+
+
+
+
+### Locale and Keymap
+
+
+To set the system locale, edit the `/etc/locale.gen` file with nano and **uncomment** `en_US.UTF-8` and any other necessary UTF-8 locales. For example, I'll uncomment `es_ES.UTF-8`.
+
+<dl><dd>
+<pre>
+[root@archiso /]# <b>nano /etc/locale.gens</b>
+</pre>
+</dd></dl>
+
+> [!TIP]
+> You can find them easily with <kbd>CTRL</kbd> + <kbd>W</kbd>
+
+After uncommenting the needed locales, generate them by running:
+
+<dl><dd>
+<pre>
+[root@archiso /]# <b>locale-gen</b>
+</pre>
+</dd></dl>
+
+You should see an output similar to:
+
 ```
-
-```bash
-ln -sf /usr/share/zoneinfo/Europe/Madrid /etc/localtime
-```
-
-To see timeszones, just run
-
-timedatectl list-timazones | more
-
-
-
-Run hwclock(8) to generate /etc/adjtime:
-
-```bash
-hwclock -w
-```
-
-This command assumes the hardware clock is set to UTC. See System time#Time standard for details.
-
-To prevent clock drift and ensure accurate time, set up time synchronization using a Network Time Protocol (NTP) client such as systemd-timesyncd. 
-
-
-### Localization
-
-
-Edit `/etc/locale.gen` with nano and uncomment `en_US.UTF-8 UTF-8` and other needed UTF-8 locales (I will uncomment `es_ES.UTF-8 UTF-8`). Generate the locales by running:
-
-```bash
-nano /etc/locale.gen
-```
-
-
-You can find them easily with ctrl + w
-
-```bash
-locale-gen
-```
-
-You will see:
 Generation locales...
     en_US.UTF-8 ... done
     xx_XX.UTF-8 ... done
 Generation complete.
-
-Create the locale.conf(5) file, and set the LANG variable accordingly: 
-
-```bash
-echo KEYMAP=es > /etc/vconsole.conf
 ```
+Next, set your preferred system language by saving it in `etc/locale.conf`:
+
+<dl><dd>
+<pre>
+[root@archiso /]# <b>echo LANG=en_US.UTF-8 > /etc/locale.conf</b>
+</pre>
+</dd></dl>
+
+Then, set the console keymap according to your preference and save it in `/etc/vconsole.conf`. For example:
+
+For **English (US)** keymap:
+
+<dl><dd>
+<pre>
+[root@archiso /]# <b>echo KEYMAP=en > /etc/vconsole.conf</b>
+</pre>
+</dd></dl>
+
+For **Spanish** keymap:
+
+<dl><dd>
+<pre>
+[root@archiso /]# <b>echo KEYMAP=es > /etc/vconsole.conf</b>
+</pre>
+</dd></dl>
 
 
-This will be the language
-
-```bash
-echo LANG=es_ES.UTF-8 > /etc/locale.conf
-```
-
-And add `LANG=en_US.UTF-8`
-
-If you set the console keyboard layout, make the changes persistent in vconsole.conf(5): 
 
 
 
+### Set Hostname
+
+To set the hostname of your system, use the following command:
+
+<dl><dd>
+<pre>
+[root@archiso /]# <b>echo <i>hostname</i> > /etc/hostname</b>
+</pre>
+</dd></dl>
+
+For example, to set the hostname to HP:
+
+<dl><dd>
+<pre>
+[root@archiso /]# <b>echo HP > /etc/hostname</b>
+</pre>
+</dd></dl>
 
 
-
-
-
-### Set pc name
-
-echo PC_name > /etc/hostname
-
-echo HP > /etc/hostname
 
 
 
 ### Root password
 
-```bash
-passwd
-```
+To set the root password, run the following command:
 
-And type your new password 2 times
-
-
-
-
-
-
-useradd -m adrian
-
-passwd adrian
+<dl><dd>
+<pre>
+[root@archiso /]# <b>passwd</b>
+</pre>
+</dd></dl>
 
 
 
 
 
+### Create a User
+
+To create a new user, run the following command
+
+<dl><dd>
+<pre>
+[root@archiso /]# <b>useradd -m <i>user</i></b>
+</pre>
+</dd></dl>
+
+For example, to create a user named adrian:
+
+<dl><dd>
+<pre>
+[root@archiso /]# <b>useradd -m adrian</b>
+</pre>
+</dd></dl>
+
+To set a password for it user, run:
+
+<dl><dd>
+<pre>
+[root@archiso /]# <b>passwd <i>user</i></b>
+</pre>
+</dd></dl>
+
+For example, to set a password for adrian
+
+<dl><dd>
+<pre>
+[root@archiso /]# <b>passwd adrian</b>
+</pre>
+</dd></dl>
+
+
+
+
+
+### Grub
+
+???
 mkdir -p /boot/efi
 mount /dev/sdXn /boot/efi
 
-you ewill see
+you will see
 mount: (hint) your fstab has been modified, but systemd still uses
        the old version; use 'systemctl daemon-reload' to reload.
+???
 
-grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB
+To install the GRUB bootloader, run the following command:
 
+<dl><dd>
+<pre>
+[root@archiso /]# <b>grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB</b>
+</pre>
+</dd></dl>
 
-if the installation finishes witout problems:
+If the installation finishes without any issues, generate the GRUB configuration file with:
 
-grub-mkconfig -o /boot/grub/grub.cfg
-
-
-
-
-
-
-
-
-RESTART, QUIT PENDRIVE
-exit
-poweroff
-
+<dl><dd>
+<pre>
+[root@archiso /]# <b>grub-mkconfig -o /boot/grub/grub.cfg</b>
+</pre>
+</dd></dl>
 
 
-log as root
 
-ping 8.8.8.8
 
-Network us unreachable
+
+### Exit
+
+If you followed the steps correctly, congratulations! You have finished installing Arch Linux. To check if everything is working, follow these steps:
+
+1. Exit from chroot
+<dl><dd>
+<pre>
+[root@archiso /]# <b>exit</b>
+</pre>
+</dd></dl>
+
+2. Turn of the computer
+<dl><dd>
+<pre>
+root@archiso ~ # <b>poweroff</b>
+</pre>
+</dd></dl>
+
+3. Remove the installation media (flash drive).
+4. Turn on your computer.
+
+Upon rebooting, you should see the GRUB menu. After selecting Arch Linux, you will be taken to the tty1 terminal, where we will finish the final configuration of your system.
+
+Log in as `root` and check that you can execute commands as `whoami`or `ls` for example
+
+
+
+
+
+### Connect to the internet
+
+After rebooting we have to configure the network for a last time. If you try pinging google for example you can see that you can't even if you have a wired connection:
+
+<dl><dd>
+<pre>
+root@hostname ~ # <b>ping 8.8.8.8</b>
+Network is unreachable
+</pre>
+</dd></dl>
 
 So we can to configure the connection wired/wifi
 
