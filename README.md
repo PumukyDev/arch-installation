@@ -10,42 +10,6 @@ Arch Linux is a [GNU](https://wiki.archlinux.org/title/GNU)/Linux distribution k
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-$${\color{#ff5a5a}root}$$
-$${\color{red}Red}$$
-$${\color{red}Red}$$
-$${\color{green}Green}$$
-$${\color{green}Green}$$
-$${\color{lightgreen}Light \space Green}$$ 	
-$${\color{lightgreen}Light \space Green}$$
-$${\color{blue}Blue}$$ 	
-$${\color{blue}Blue}$$
-$${\color{lightblue}Light \space Blue}$$ 	
-$${\color{lightblue}Light \space Blue}$$
-$${\color{black}Black}$$
-$${\color{black}Black}$$
-$${\color{white}White}$$
-$${\color{white}White}$$
-$${\color{red}Welcome \space \color{lightblue}To \space \color{orange}Stackoverflow}$$
-$${\color{red}Welcome \space \color{lightblue}To \space \color{orange}Stackoverflow}$$
-
 > [!NOTE]
 > Highlights information that users should take into account, even when skimming.
 
@@ -60,14 +24,6 @@ $${\color{red}Welcome \space \color{lightblue}To \space \color{orange}Stackoverf
 
 > [!CAUTION]
 > Negative potential consequences of an action.
-
-
-
-
-
-
-
-
 
 
 
@@ -295,19 +251,19 @@ To navigate between partitions and options, use the arrow keys: <kbd>&#8592;</kb
 
 #### 1. /boot
 
-Press <kbd>Return</kbd> on `New` and type `1GB`, then press <kbd>Return</kbd> again.
+Press <kbd>Return</kbd> on `New` and type `1G`, then press <kbd>Return</kbd> again.
 
 Navigate to the newly created partition, press <kbd>Return</kbd> on `Type`, and select `EFI System`.
 
 #### 2. [swap]
 
-Press <kbd>Return</kbd> on `New` and type double the amount of your RAM in GB. For example, if you have 6GB of RAM, type `12GB`, then press <kbd>Return</kbd> again.
+Press <kbd>Return</kbd> on `New` and type double the amount of your RAM in GB. For example, if you have 6GB of RAM, type `12G`, then press <kbd>Return</kbd> again.
 
 Navigate to the newly created partition, press <kbd>Return</kbd> on `Type`, and select `Linux swap`.
 
 #### 3. /
 
-Press <kbd>Return</kbd> on `New` and enter the amount of GB you want for your root partition, for example, `250GB`, then press <kbd>Return</kbd> again.
+Press <kbd>Return</kbd> on `New` and enter the amount of GB you want for your root partition, for example, `250G`, then press <kbd>Return</kbd> again.
 
 Navigate to the newly created partition, press <kbd>Return</kbd> on `Type`, and select `Linux root (x86-64)`.
 
@@ -855,124 +811,177 @@ Log in as `root` and check that you can execute commands as `whoami`or `ls` for 
 
 After rebooting we have to configure the network for a last time. If you try pinging google for example you can see that you can't even if you have a wired connection:
 
+
+
 <dl><dd>
 <pre>
 root@hostname ~ # <b>ping 8.8.8.8</b>
-Network is unreachable
+ping: connect: Network is unreachable
 </pre>
 </dd></dl>
 
-So we can to configure the connection wired/wifi
-
-Wired
-
-systemctl start NetworkManager
-systemctl enable NetworkManager
 
 
-ping 8.8.8.8
+<dl><dd>
+<pre>
+root@hostname ~ # <b>ip link</b>
+</pre>
+</dd></dl>
 
 
-```bash
-ip link
+
+```
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT qlen 1000
+    link/looback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: enp3s0f3u3c2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000
+    link/ether ab:cd:ef:gh:ij:kl brd ff:ff:ff:ff:ff:ff
+3: wlo1: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN mode DORMANT group default qlen 1000
+    link/ether ab:cd:ef:gh:ij:kl brd ff:ff:ff:ff:ff:ff
 ```
 
-1. lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT qlen 1000
-    link/looback 00:00:00:00:00:00 brd 00:00:00:00:00:00
-2. wlo1: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN mode DORMANT group default qlen 1000
-    link/ether ab:cd:ef:gh:ij:kl brd ff:ff:ff:ff:ff:ff
+
+
+<details>
+    <summary><b>Wired Connection</b></summary><br/>
+
+<dl><dd>
+<pre>
+root@hostname ~ # <b>systemctl start NetworkManager</b>
+root@hostname ~ # <b>systemctl enable NetworkManager</b>
+</pre>
+</dd></dl>
+
+</details>
+
+<details>
+    <summary><b>Wireless Connection</b></summary><br/>
+
+<dl><dd>
+<pre>
+root@hostname ~ # <b>systemctl start NetworkManager</b>
+root@hostname ~ # <b>systemctl enable NetworkManager</b>
+</pre>
+</dd></dl>
+<dl><dd>
+
+<dl><dd>
+<pre>
+root@hostname ~ # <b>ip link set wlo1 up</b>
+</pre>
+</dd></dl>
+<dl><dd>
+
+<dl><dd>
+<pre>
+root@hostname ~ # <b> nmcli dev wifi connect 'Your_Router_Name' password 'Your_Router_Password'</b>
+</pre>
+</dd></dl>
+<dl><dd>
+
+</details>
 
 
 
- ip link set wlo1 up
 
- nmcli dev wifi connect 'Your_Router_Name' password 'Your_Router_Password'
+### Installing graphic controllers
 
+<dl><dd>
+<pre>
+root@hostname ~ # <b>lspci | grep VGA</b>
+</pre>
+</dd></dl>
+<dl><dd>
 
-ping 8.8.8.8
-
-
-lspci | grep VGA
+```
 03:00.0 VGA compatible controller: Advanced Micro Devices, Inc. [AMD/ATI] Barcelo (rev c4)
-
+```
 
 Generic controllers
 
-pacman -S xf86-video-vesa  
+<dl><dd>
+<pre>
+root@hostname ~ # <b>pacman -S xf86-video-vesa</b>
+</pre>
+</dd></dl>
+<dl><dd>
 
 
-Then you can install a more specific controller, if you have a 
-amd -> xf86-video-ati
-nvidia -> xf86-video-nouveau
-intel -> xf86-video-intel intel-ucode
+Then you can install a more specific controller, if you have a
+
+* `amd` -> xf86-video-ati
+* `nvidia` -> xf86-video-nouveau
+* `intel` -> xf86-video-intel intel-ucode
 
 
+<dl><dd>
+<pre>
+root@hostname ~ # <b>pacman -S sudo</b>
+</pre>
+</dd></dl>
+<dl><dd>
+
+<dl><dd>
+<pre>
+root@hostname ~ # <b>usermod -aG wheel <i>user</i></b>
+</pre>
+</dd></dl>
+<dl><dd>
 
 
-
-
-
-
-
-
-
-
-
-
-
-make sudo commands as your user:
-
-as root
-
-pacman -S sudo
-usermod -aG wheel user
 
 
 
 ## Export nano as your default editor
-echo "export EDITOR=nano" >> ~/.bashrc
-source ~/.bashrc
+
+<dl><dd>
+<pre>
+root@hostname ~ # <b>echo "export EDITOR=nano" >> ~/.bashrc</b>
+</pre>
+</dd></dl>
+<dl><dd>
+
+<dl><dd>
+<pre>
+root@hostname ~ # <b>source ~/.bashrc</b>
+</pre>
+</dd></dl>
+<dl><dd>
 
 
-
-sudo visudo
-
-
+<dl><dd>
+<pre>
+root@hostname ~ # <b>sudo visudo</b>
+</pre>
+</dd></dl>
+<dl><dd>
 
 
 scroll down
 
 
-search
-# %wheel ALL=(ALL:ALL) ALL
+search `# %wheel ALL=(ALL:ALL) ALL`
 
 uncomment it and save
 
 
 
 
+### Paru
 
+<dl><dd>
+<pre>
+root@hostname ~ # <b>su -l user</b>
+</pre>
+</dd></dl>
+<dl><dd>
 
+<dl><dd>
+<pre>
+<i>user</i>@hostname ~ # <b>su -l <i>user</i></b>
+</pre>
+</dd></dl>
+<dl><dd>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-instalar paru
-
-su -l user
 sudo pacman -S base-devel git rust
 
 mkdir -p desktop/repos
@@ -984,9 +993,9 @@ makepkg -si
 tarda mucho!
 
 
+<>
 
-
-sudo pacman -S xterm xorg-server xorg-xinit mesa mesa-demos
+sudo pacman -S xorg-server xorg-xinit mesa mesa-demos
 
 sudo pacman -S lightdm lightdm-gtk-greeter
 
@@ -998,7 +1007,7 @@ sudo pacman -S qtile
 
 
 
-sudo pacman -S alacritty feh xclip fastfetch openssh picom code stow wireless_tools python-psutils python-iwlib rofi kitty fish bat dunst arandr pulseaudio pamixer pulseaudio-alsa pulseaudio-jack alsa-utils pamixer 
+sudo pacman -S alacritty feh xclip fastfetch openssh picom code stow wireless_tools python-psutils python-iwlib rofi kitty fish bat dunst arandr pulseaudio pulseaudio-alsa pulseaudio-jack alsa-utils pamixer lsd python-psutil 7zip linux-lts linux-headers alsa-firmware sof-firmware
 
 paru -S python-pulsectl-asyncio
 paru -S qtile-extras
@@ -1018,3 +1027,10 @@ sudo chown -R user:user /home/user
 
 
 copy the fonts
+
+
+download dotfiles
+
+stow *
+
+you can now change th ewallpaper by clcking on the arch icon in the top left of the screen
