@@ -9,31 +9,11 @@ Arch Linux has its own [official installation guide](https://wiki.archlinux.org/
 Arch Linux is a [GNU](https://wiki.archlinux.org/title/GNU)/Linux distribution known for its flexibility, and **rolling release model**. It provides users with the latest software and updates without the need for major system upgrades. Arch’s minimalist approach allows you to build a system tailored exactly to your needs, **avoiding unnecessary bloat**. The distribution offers **excellent documentation** through the [Arch Wiki](https://wiki.archlinux.org/title/Main_page), which is widely regarded as one of the best resources for Linux users. Arch also features the powerful [Pacman](https://wiki.archlinux.org/title/Pacman) package manager and access to the [Arch User Repository (AUR)](https://aur.archlinux.org/), giving you an extensive library of software. With bleeding-edge updates, a **highly customizable system**, and a strong focus on user control, Arch Linux is ideal for those who want a **lightweight**, **efficient**, Linux experience.
 
 
-
-> [!NOTE]
-> Highlights information that users should take into account, even when skimming.
-
-> [!TIP]
-> Optional information to help a user be more successful.
-
-> [!IMPORTANT]
-> Crucial information necessary for users to succeed.
-
-> [!WARNING]
-> Critical content demanding immediate user attention due to potential risks.
-
-> [!CAUTION]
-> Negative potential consequences of an action.
-
-
-
-
-
 ## PREPARATION
 
 ## INSTALLATION
 
-Once 
+Once
 
 ### Set the keyboard layout
 
@@ -527,7 +507,7 @@ Use the `pacstrap` script to install the base package
 
 <dl><dd>
 <pre>
-root@archiso ~ # <b>pacstrap -K /mnt base linux linux-firmware nano grub networkmanager efibootmgr</b>
+root@archiso ~ # <b>pacstrap -K /mnt base linux linux-firmware nano networkmanager</b>
 </pre>
 </dd></dl>
 
@@ -540,7 +520,7 @@ root@archiso ~ # <b>pacstrap -K /mnt netctl wpa_supplicant dialog</b>
 </dd></dl>
 
 > [!IMPORTANT]
-> I strongly recommend installing `amd-ucode` or `intel-ucode` as well. These packages provide CPU microcode updates for hardware bugs and security fixes. Just add `amd-ucode` or `intel-ucode` to the `pacstrap` installation.
+> I recommend installing `amd-ucode` or `intel-ucode` as well. These packages provide CPU microcode updates for hardware bugs and security fixes. Just add `amd-ucode` or `intel-ucode` to the `pacstrap` installation.
 
 
 
@@ -749,22 +729,51 @@ For example, to set a password for adrian
 
 ### Grub
 
-???
-mkdir -p /boot/efi
-mount /dev/sdXn /boot/efi
+Now, configure the bootloader, in this tutorial we are going to install grub:
 
-you will see
-mount: (hint) your fstab has been modified, but systemd still uses
-       the old version; use 'systemctl daemon-reload' to reload.
-???
+<dl><dd>
+<pre>
+[root@archiso /]# <b>pacman -S grub efibootmgr</b>
+</pre>
+</dd></dl>
 
-To install the GRUB bootloader, run the following command:
+To install it, run the following command:
 
 <dl><dd>
 <pre>
 [root@archiso /]# <b>grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB</b>
 </pre>
 </dd></dl>
+
+
+<details>
+    <summary><b>Possible error</b></summary><br/>
+
+If you have any error /boot/efi may have been unmounted, create /boot/efi again
+
+<dl><dd>
+<pre>
+[root@archiso /]# <b>mkdir -p /boot/efi</b>
+</pre>
+</dd></dl>
+
+And mount it
+
+<dl><dd>
+<pre>
+[root@archiso /]# <b>mount /dev/sdXn /boot/efi</b>
+</pre>
+</dd></dl>
+
+You will see:
+
+```
+mount: (hint) your fstab has been modified, but systemd still uses
+       the old version; use 'systemctl daemon-reload' to reload.
+```
+
+</details>
+
 
 If the installation finishes without any issues, generate the GRUB configuration file with:
 
@@ -862,21 +871,18 @@ root@hostname ~ # <b>systemctl start NetworkManager</b>
 root@hostname ~ # <b>systemctl enable NetworkManager</b>
 </pre>
 </dd></dl>
-<dl><dd>
 
 <dl><dd>
 <pre>
 root@hostname ~ # <b>ip link set wlo1 up</b>
 </pre>
 </dd></dl>
-<dl><dd>
 
 <dl><dd>
 <pre>
 root@hostname ~ # <b> nmcli dev wifi connect 'Your_Router_Name' password 'Your_Router_Password'</b>
 </pre>
 </dd></dl>
-<dl><dd>
 
 </details>
 
@@ -885,83 +891,126 @@ root@hostname ~ # <b> nmcli dev wifi connect 'Your_Router_Name' password 'Your_R
 
 ### Installing graphic controllers
 
-<dl><dd>
-<pre>
-root@hostname ~ # <b>lspci | grep VGA</b>
-</pre>
-</dd></dl>
-<dl><dd>
-
-```
-03:00.0 VGA compatible controller: Advanced Micro Devices, Inc. [AMD/ATI] Barcelo (rev c4)
-```
-
-Generic controllers
+First, install some generic controllers:
 
 <dl><dd>
 <pre>
 root@hostname ~ # <b>pacman -S xf86-video-vesa</b>
 </pre>
 </dd></dl>
+
+Then you can install a more specific controller, if you have, if you don't know your gpu model, you can run:
+
 <dl><dd>
+<pre>
+root@hostname ~ # <b>lspci | grep VGA</b>
+</pre>
+</dd></dl>
 
+This is my output por example, so I will have to install ati amd/ati controllers:
 
-Then you can install a more specific controller, if you have a
+```
+03:00.0 VGA compatible controller: Advanced Micro Devices, Inc. [AMD/ATI] Barcelo (rev c4)
+```
+
+These are the possible options:
 
 * `amd` -> xf86-video-ati
 * `nvidia` -> xf86-video-nouveau
 * `intel` -> xf86-video-intel intel-ucode
 
 
-<dl><dd>
-<pre>
-root@hostname ~ # <b>pacman -S sudo</b>
-</pre>
-</dd></dl>
-<dl><dd>
+
+
+
+### Installing Xorg
 
 <dl><dd>
 <pre>
-root@hostname ~ # <b>usermod -aG wheel <i>user</i></b>
+root@hostname ~ # <b>lspci | grep VGA</b>
 </pre>
 </dd></dl>
+
+
+
+sudo pacman -S xorg-server xorg-xinit mesa mesa-demos
+
+
+### Installing lightdm
+
 <dl><dd>
+<pre>
+root@hostname ~ # <b>lspci | grep VGA</b>
+</pre>
+</dd></dl>
+
+
+sudo pacman -S lightdm lightdm-gtk-greeter
+
+
+sudo systemctl enable lightdm
 
 
 
 
+### Installing qtile
 
-## Export nano as your default editor
+sudo pacman -S qtile
+
+
+
+### Export nano as your default editor
 
 <dl><dd>
 <pre>
 root@hostname ~ # <b>echo "export EDITOR=nano" >> ~/.bashrc</b>
 </pre>
 </dd></dl>
-<dl><dd>
 
 <dl><dd>
 <pre>
 root@hostname ~ # <b>source ~/.bashrc</b>
 </pre>
 </dd></dl>
-<dl><dd>
 
+
+
+
+
+### Introduce your user in the sudoers file
+
+First, install `sudo` package
+<dl><dd>
+<pre>
+root@hostname ~ # <b>pacman -S sudo</b>
+</pre>
+</dd></dl>
+
+Then
+<dl><dd>
+<pre>
+root@hostname ~ # <b>usermod -aG wheel <i>user</i></b>
+</pre>
+</dd></dl>
 
 <dl><dd>
 <pre>
 root@hostname ~ # <b>sudo visudo</b>
 </pre>
 </dd></dl>
-<dl><dd>
 
+Scroll down and search
 
-scroll down
+```bash
+# %wheel ALL=(ALL:ALL) ALL
+```
 
+Uncomment it and save
 
-search `# %wheel ALL=(ALL:ALL) ALL`
+```
+%wheel ALL=(ALL:ALL) ALL
+```
 
-uncomment it and save
 
 
 
@@ -973,41 +1022,64 @@ uncomment it and save
 root@hostname ~ # <b>su -l user</b>
 </pre>
 </dd></dl>
-<dl><dd>
 
 <dl><dd>
 <pre>
 <i>user</i>@hostname ~ # <b>su -l <i>user</i></b>
 </pre>
 </dd></dl>
+
 <dl><dd>
+<pre>
+<i>user</i>@hostname ~ # <b>sudo pacman -S base-devel git rust</b>
+</pre>
+</dd></dl>
 
-sudo pacman -S base-devel git rust
+<dl><dd>
+<pre>
+<i>user</i>@hostname ~ # <b>mkdir -p ~/desktop/repos</b>
+</pre>
+</dd></dl>
 
-mkdir -p desktop/repos
-cd desktop/repos
-git clone https://aur.archlinux.org/paru.git
-cd paru
-makepkg -si
+<dl><dd>
+<pre>
+<i>user</i>@hostname ~ # <b>cd ~/desktop/repos</b>
+</pre>
+</dd></dl>
 
-tarda mucho!
+<dl><dd>
+<pre>
+<i>user</i>@hostname ~ # <b>git clone https://aur.archlinux.org/paru.git</b>
+</pre>
+</dd></dl>
+
+<dl><dd>
+<pre>
+<i>user</i>@hostname ~ # <b>cd paru</b>
+</pre>
+</dd></dl>
+
+<dl><dd>
+<pre>
+<i>user</i>@hostname ~ # <b>makepkg -si</b>
+</pre>
+</dd></dl>
+
+> [!NOTE]
+> tarda mucho!
 
 
-<>
-
-sudo pacman -S xorg-server xorg-xinit mesa mesa-demos
-
-sudo pacman -S lightdm lightdm-gtk-greeter
 
 
-sudo systemctl enable lightdm
 
-sudo pacman -S qtile
+### Install packages to make compatible with my dotfiles
+
+https://github.com/PumukyDev/PumuArch
 
 
 
 
-sudo pacman -S alacritty feh xclip fastfetch openssh picom code stow wireless_tools python-psutils python-iwlib rofi kitty fish bat dunst arandr pulseaudio pulseaudio-alsa pulseaudio-jack alsa-utils pamixer lsd python-psutil 7zip linux-lts linux-headers alsa-firmware sof-firmware
+sudo pacman -S alacritty feh xclip fastfetch openssh picom code stow wireless_tools python-psutils python-iwlib rofi kitty fish bat dunst arandr pulseaudio pulseaudio-alsa pulseaudio-jack alsa-utils pamixer lsd python-psutil 7zip linux-lts linux-headers alsa-firmware sof-firmware firefox
 
 paru -S python-pulsectl-asyncio
 paru -S qtile-extras
@@ -1015,15 +1087,17 @@ paru -S qtile-extras
 
 systemctl --user enable pulseaudio
 
-lo de arriba es muy importante que sea sin sudo!
+> [!WARNING]
+> lo de arriba es muy importante que sea sin sudo!
 
- firefox
+
+
 
 
 
 if it does not work make sure that everything inside your userfolder is yours, if not:
 
-sudo chown -R user:user /home/user
+sudo chown -R user:user /home/<i>user</i>
 
 
 copy the fonts
